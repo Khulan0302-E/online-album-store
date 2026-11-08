@@ -1,13 +1,80 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FiArrowRight, FiChevronDown } from 'react-icons/fi'
 import { supabase } from '../lib/supabase'
-import { getErrorMessage } from '../lib/format'
+import { formatPrice, getErrorMessage } from '../lib/format'
 import ProductGrid, { ProductGridSkeleton } from '../components/product/ProductGrid'
 import CoverImage from '../components/ui/CoverImage'
+import DiscCascadeCarousel from '../components/product/DiscCascadeCarousel'
 import { EmptyState, ErrorState } from '../components/ui/States'
 
 const PRODUCT_SELECT = 'id, title, price, cover_url, type, artist:artists(id, name), category:categories(id, name)'
+
+function toDiscItem(record) {
+  const seconds = record.tracks.reduce((sum, t) => sum + (t.duration_sec ?? 0), 0)
+  const credits = [{ label: 'Уран бүтээлч', value: record.artist?.name ?? '—' }]
+  if (record.tracks.length) credits.push({ label: 'Дуу', value: `${record.tracks.length}` })
+  if (seconds) credits.push({ label: 'Урт', value: `${Math.round(seconds / 60)} мин` })
+  credits.push({ label: 'Үнэ', value: formatPrice(record.price) })
+  return {
+    id: record.id,
+    title: record.title,
+    src: record.cover_url || undefined,
+    alt: record.title,
+    credits,
+    fine: `${record.artist?.name ?? ''} · khuvuu.mn`,
+  }
+}
+
+function FeaturedRecords() {
+  const navigate = useNavigate()
+  const [items, setItems] = useState([])
+  const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    supabase
+      .from('products')
+      .select('id, title, price, cover_url, artist:artists(name), tracks(duration_sec)')
+      .eq('type', 'album')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false })
+      .limit(10)
+      .then(({ data }) => setItems((data ?? []).map(toDiscItem)))
+  }, [])
+
+  if (items.length === 0) return null
+
+  const current = items[Math.min(active, items.length - 1)]
+
+  return (
+    <section className="mt-12">
+      <div className="mb-6 flex items-end justify-between">
+        <h2 className="text-2xl font-bold">Онцлох пянз</h2>
+        <Link to={`/products/${current.id}`} className="text-sm text-soft hover:underline">
+          {current.title} — дэлгэрэнгүй
+        </Link>
+      </div>
+      <div className="overflow-hidden rounded-3xl border border-line">
+        <DiscCascadeCarousel
+          items={items}
+          height="clamp(460px, 72svh, 680px)"
+          defaultIndex={0}
+          loop={items.length > 2}
+          autoplay={4500}
+          reviews={false}
+          background="radial-gradient(120% 90% at 50% 40%, #151a24, #0b0d12)"
+          color="#f4f1ea"
+          serif='"Montserrat", ui-sans-serif, system-ui, sans-serif'
+          sans='"Inter", ui-sans-serif, system-ui, sans-serif'
+          display='"Oswald", "Montserrat", "Arial Narrow", sans-serif'
+          fontHref="https://fonts.googleapis.com/css2?family=Oswald:wght@600;700&display=swap"
+          onIndexChange={setActive}
+          onSelect={(item) => navigate(`/products/${item.id}`)}
+        />
+      </div>
+    </section>
+  )
+}
 
 export default function Home() {
   const [products, setProducts] = useState([])
@@ -48,16 +115,16 @@ export default function Home() {
           <img src="/khuvuu-mark.svg" alt="" className="h-full w-full" />
         </div>
         <div className="container-page relative py-20 sm:py-28">
-          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-soft">Цомог · Пянз · Мерч</p>
+          <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-soft">Пянз · Мерч</p>
           <h1 className="max-w-xl text-4xl font-extrabold leading-tight sm:text-6xl">
             Хөгжимдөө <span className="text-soft">хөвж</span> ор.
           </h1>
           <p className="mt-5 max-w-md text-muted">
-            Монгол уран бүтээлчдийн CD, винил, дижитал цомог болон албан ёсны мерчийг нэг дороос.
+            Монгол уран бүтээлчдийн пянз болон албан ёсны мерчийг нэг дороос.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/shop?type=album" className="btn btn-primary">
-              Цомог үзэх <FiArrowRight />
+              Пянз үзэх <FiArrowRight />
             </Link>
             <Link to="/shop?type=merch" className="btn btn-ghost">Мерч</Link>
           </div>
@@ -67,7 +134,7 @@ export default function Home() {
       <div className="container-page">
         <div className="mt-10">
           <div className="flex flex-wrap gap-2">
-            <Link to="/shop?type=album" className="chip">Цомог</Link>
+            <Link to="/shop?type=album" className="chip">Пянз</Link>
             <button
               type="button"
               onClick={() => setMerchOpen((open) => !open)}
@@ -92,6 +159,8 @@ export default function Home() {
           )}
         </div>
 
+        <FeaturedRecords />
+
         <section className="mt-12">
           <div className="mb-6 flex items-end justify-between">
             <h2 className="text-2xl font-bold">Шинээр нэмэгдсэн</h2>
@@ -102,7 +171,7 @@ export default function Home() {
           ) : error ? (
             <ErrorState message={error} onRetry={load} />
           ) : products.length === 0 ? (
-            <EmptyState title="Бүтээгдэхүүн алга" message="Удахгүй шинэ цомог, мерч нэмэгдэнэ." />
+            <EmptyState title="Бүтээгдэхүүн алга" message="Удахгүй шинэ пянз, мерч нэмэгдэнэ." />
           ) : (
             <ProductGrid products={products} />
           )}

@@ -6,32 +6,31 @@ import { getErrorMessage } from '../lib/format'
 import useDebounce from '../hooks/useDebounce'
 import ProductGrid, { ProductGridSkeleton } from '../components/product/ProductGrid'
 import Pagination from '../components/ui/Pagination'
+import ShopTypeTabs from '../components/product/ShopTypeTabs'
+import RecordsView from './RecordsView'
 import { EmptyState, ErrorState } from '../components/ui/States'
 
 const PAGE_SIZE = 12
 
 const SORTS = {
   newest: { label: 'Шинээр нэмэгдсэн', column: 'created_at', ascending: false },
-  release: { label: 'Гарсан огноо', column: 'release_date', ascending: false },
   price_asc: { label: 'Үнэ: багаас их', column: 'price', ascending: true },
   price_desc: { label: 'Үнэ: ихээс бага', column: 'price', ascending: false },
   title: { label: 'Нэрээр (А–Я)', column: 'title', ascending: true },
 }
 
-const TYPES = [
-  { value: '', label: 'Бүгд' },
-  { value: 'album', label: 'Цомог' },
-  { value: 'merch', label: 'Мерч' },
-]
-
 const PRODUCT_SELECT = 'id, title, price, cover_url, type, release_date, created_at, artist:artists(id, name), category:categories(id, name)'
 
 export default function Shop() {
+  const [params] = useSearchParams()
+  return params.get('type') === 'album' ? <RecordsView /> : <ShopGrid />
+}
+
+function ShopGrid() {
   const [params, setParams] = useSearchParams()
   const q = params.get('q') ?? ''
   const type = params.get('type') ?? ''
   const category = params.get('category') ?? ''
-  const genre = params.get('genre') ?? ''
   const min = params.get('min') ?? ''
   const max = params.get('max') ?? ''
   const sort = SORTS[params.get('sort')] ? params.get('sort') : 'newest'
@@ -43,7 +42,6 @@ export default function Shop() {
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const [categories, setCategories] = useState([])
-  const [genres, setGenres] = useState([])
   const [products, setProducts] = useState([])
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
@@ -69,13 +67,11 @@ export default function Shop() {
   )
 
   useEffect(() => {
-    Promise.all([
-      supabase.from('categories').select('id, name, type').order('name'),
-      supabase.from('genres').select('id, name').order('name'),
-    ]).then(([c, g]) => {
-      setCategories(c.data ?? [])
-      setGenres(g.data ?? [])
-    })
+    supabase
+      .from('categories')
+      .select('id, name, type')
+      .order('name')
+      .then(({ data }) => setCategories(data ?? []))
   }, [])
 
   useEffect(() => {
@@ -90,13 +86,11 @@ export default function Shop() {
       setLoading(true)
       setError(null)
 
-      const select = genre ? `${PRODUCT_SELECT}, product_genres!inner(genre_id)` : PRODUCT_SELECT
-      let query = supabase.from('products').select(select, { count: 'exact' }).eq('is_active', true)
+      let query = supabase.from('products').select(PRODUCT_SELECT, { count: 'exact' }).eq('is_active', true)
 
       if (q) query = query.ilike('title', `%${q}%`)
       if (type) query = query.eq('type', type)
       if (category) query = query.eq('category_id', category)
-      if (genre) query = query.eq('product_genres.genre_id', genre)
       if (min) query = query.gte('price', min)
       if (max) query = query.lte('price', max)
 
@@ -129,7 +123,7 @@ export default function Shop() {
     return () => {
       ignore = true
     }
-  }, [q, type, category, genre, min, max, sort, page, reloadKey, updateParams])
+  }, [q, type, category, min, max, sort, page, reloadKey, updateParams])
 
   const applyPrice = (e) => {
     e.preventDefault()
@@ -139,17 +133,20 @@ export default function Shop() {
   const clearFilters = () => {
     setSearch('')
     setPriceInput({ min: '', max: '' })
-    setParams({}, { replace: true })
+    setParams(type ? { type } : {}, { replace: true })
   }
 
-  const hasFilters = q || type || category || genre || min || max
+  const hasFilters = q || category || min || max
   const totalPages = Math.ceil(total / PAGE_SIZE)
 
   return (
     <div className="container-page py-10">
+      <div className="mb-8">
+        <ShopTypeTabs active={type} />
+      </div>
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Дэлгүүр</h1>
+          <h1 className="text-3xl font-bold">{type === 'merch' ? 'Мерч' : 'Дэлгүүр'}</h1>
           <p className="mt-1 text-sm text-muted">{loading ? 'Хайж байна…' : `${total} бүтээгдэхүүн`}</p>
         </div>
         <div className="flex gap-3">
@@ -158,7 +155,7 @@ export default function Shop() {
             <input
               type="search"
               className="input pl-10"
-              placeholder="Цомог, мерч хайх…"
+              placeholder="Пянз, мерч хайх…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -172,22 +169,6 @@ export default function Shop() {
       <div className="flex flex-col gap-8 lg:flex-row">
         <aside className={`${filtersOpen ? 'block' : 'hidden'} space-y-7 lg:block lg:w-60 lg:shrink-0`}>
           <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">Төрөл</h3>
-            <div className="flex flex-wrap gap-2">
-              {TYPES.map((t) => (
-                <button
-                  key={t.value}
-                  type="button"
-                  onClick={() => updateParams({ type: t.value, category: '' })}
-                  className={`chip ${type === t.value ? 'chip-active' : ''}`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
             <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">Ангилал</h3>
             <select className="input" value={category} onChange={(e) => updateParams({ category: e.target.value })}>
               <option value="">Бүх ангилал</option>
@@ -196,16 +177,6 @@ export default function Shop() {
                 .map((c) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
-            </select>
-          </div>
-
-          <div>
-            <h3 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted">Хөгжмийн төрөл</h3>
-            <select className="input" value={genre} onChange={(e) => updateParams({ genre: e.target.value })}>
-              <option value="">Бүгд</option>
-              {genres.map((g) => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
             </select>
           </div>
 

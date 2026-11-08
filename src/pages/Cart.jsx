@@ -44,7 +44,7 @@ export default function Cart() {
         <EmptyState
           icon={FiShoppingBag}
           title="Сагс хоосон байна"
-          message="Таалагдсан цомог, мерчээ сагсандаа нэмээрэй."
+          message="Таалагдсан пянз, мерчээ сагсандаа нэмээрэй."
           action={<Link to="/shop" className="btn btn-primary">Дэлгүүр хэсэх</Link>}
         />
       </div>
@@ -76,7 +76,7 @@ export default function Cart() {
                     <p className="text-sm text-muted">{variantLabel(variant)}</p>
                     <p className="mt-1 text-sm">{formatPrice(variantPrice(variant, product))}</p>
                     {overStock && (
-                      <p className="mt-1 text-xs text-red-400">Нөөцөд {variant.stock} ширхэг л байна</p>
+                      <p className="mt-1 text-xs text-red-600">Нөөцөд {variant.stock} ширхэг л байна</p>
                     )}
                   </div>
                   <div className="flex items-center gap-3">
@@ -93,7 +93,7 @@ export default function Cart() {
                     <p className="w-28 text-right font-semibold">
                       {formatPrice(item.qty * variantPrice(variant, product))}
                     </p>
-                    <button type="button" onClick={() => setRemoving(item)} className="p-2 text-muted hover:text-red-400" aria-label="Хасах">
+                    <button type="button" onClick={() => setRemoving(item)} className="p-2 text-muted hover:text-red-600" aria-label="Хасах">
                       <FiTrash2 />
                     </button>
                   </div>
@@ -121,7 +121,7 @@ export default function Cart() {
           >
             Захиалах
           </button>
-          {hasStockIssue && <p className="mt-3 text-xs text-red-400">Нөөцөөс хэтэрсэн тоо ширхэгийг засна уу.</p>}
+          {hasStockIssue && <p className="mt-3 text-xs text-red-600">Нөөцөөс хэтэрсэн тоо ширхэгийг засна уу.</p>}
         </aside>
       </div>
 

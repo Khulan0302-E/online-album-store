@@ -77,7 +77,7 @@ export default function ArtistDetail() {
 
       {albums.length > 0 && (
         <section className="mt-14">
-          <h2 className="mb-6 text-2xl font-bold">Цомгууд</h2>
+          <h2 className="mb-6 text-2xl font-bold">Пянзууд</h2>
           <ProductGrid products={albums} />
         </section>
       )}

@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 import { FiMinus, FiPlus, FiShoppingBag } from 'react-icons/fi'
 import { supabase } from '../lib/supabase'
-import { formatDate, formatPrice, getErrorMessage, variantLabel, variantPrice } from '../lib/format'
+import { formatPrice, getErrorMessage, variantLabel, variantPrice } from '../lib/format'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../context/CartContext'
 import TrackList from '../components/product/TrackList'
@@ -17,8 +17,7 @@ const DETAIL_SELECT = `
   category:categories(id, name),
   images:product_images(id, url, sort_order),
   variants:product_variants(*),
-  tracks(*),
-  product_genres(genre:genres(id, name))
+  tracks(*)
 `
 
 function isAvailable(variant) {
@@ -115,7 +114,6 @@ export default function ProductDetail() {
     )
   }
 
-  const genres = product.product_genres.map((pg) => pg.genre).filter(Boolean)
 
   return (
     <div className="container-page py-10">
@@ -153,20 +151,19 @@ export default function ProductDetail() {
           <h1 className="mt-2 text-3xl font-extrabold sm:text-4xl">{product.title}</h1>
           <p className="mt-4 text-2xl font-bold">{formatPrice(selected ? variantPrice(selected, product) : product.price)}</p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {genres.map((g) => (
-              <Link key={g.id} to={`/shop?genre=${g.id}`} className="rounded-full bg-elevated px-3 py-1 text-xs text-muted hover:text-cream">
-                {g.name}
-              </Link>
-            ))}
-            {product.release_date && (
-              <span className="rounded-full bg-elevated px-3 py-1 text-xs text-muted">Гарсан: {formatDate(product.release_date)}</span>
-            )}
-          </div>
-
-          {variants.length > 0 ? (
+          {variants.length === 0 ? (
+            <p className="mt-8 text-sm text-muted">Одоогоор худалдаанд байхгүй байна.</p>
+          ) : product.type === 'album' ? (
             <div className="mt-8">
-              <h3 className="mb-3 text-sm font-semibold">{product.type === 'album' ? 'Формат' : 'Сонголт'}</h3>
+              {selected && isAvailable(selected) ? (
+                selected.stock <= 5 && <p className="text-sm text-amber-700">Зөвхөн {selected.stock} ширхэг үлдсэн</p>
+              ) : (
+                <p className="text-sm text-red-600">Дууссан</p>
+              )}
+            </div>
+          ) : (
+            <div className="mt-8">
+              <h3 className="mb-3 text-sm font-semibold">Сонголт</h3>
               <div className="flex flex-wrap gap-2">
                 {variants.map((v) => {
                   const available = isAvailable(v)
@@ -187,11 +184,9 @@ export default function ProductDetail() {
                 })}
               </div>
               {selected && selected.stock !== null && selected.stock > 0 && selected.stock <= 5 && (
-                <p className="mt-3 text-sm text-amber-300">Зөвхөн {selected.stock} ширхэг үлдсэн</p>
+                <p className="mt-3 text-sm text-amber-700">Зөвхөн {selected.stock} ширхэг үлдсэн</p>
               )}
             </div>
-          ) : (
-            <p className="mt-8 text-sm text-muted">Одоогоор худалдаанд байхгүй байна.</p>
           )}
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -214,10 +209,6 @@ export default function ProductDetail() {
               Сагсанд нэмэх
             </button>
           </div>
-
-          {selected?.format === 'digital' && (
-            <p className="mt-4 text-sm text-muted">Дижитал цомгийг төлбөр төлөгдсөний дараа татаж авах боломжтой.</p>
-          )}
 
           {product.description && (
             <div className="mt-10">

@@ -584,7 +584,7 @@ create policy "storage: admin delete" on storage.objects
   using (bucket_id in ('images', 'previews', 'digital-albums') and (select public.is_admin()));
 
 insert into public.categories (name, slug, type) values
-  ('Цомог',   'albums',   'album'),
+  ('Пянз',    'albums',   'album'),
   ('Подволк', 't-shirts', 'merch'),
   ('Малгай',  'hats',     'merch'),
   ('Pin',     'pins',     'merch');

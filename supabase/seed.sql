@@ -6,7 +6,7 @@ insert into public.artists (id, name, bio) values
 insert into public.products (id, artist_id, category_id, type, title, description, price, release_date) values
   ('b0000000-0000-0000-0000-000000000001', 'a0000000-0000-0000-0000-000000000001',
    (select id from public.categories where slug = 'albums'), 'album', 'Шөнийн долгион',
-   'Хамтлагийн хоёр дахь студийн цомог. 8 дуу.', 45000, '2025-09-12'),
+   'Хамтлагийн хоёр дахь студийн цомог, 180гр пянз.', 89000, '2025-09-12'),
   ('b0000000-0000-0000-0000-000000000002', 'a0000000-0000-0000-0000-000000000002',
    (select id from public.categories where slug = 'albums'), 'album', 'Талын салхи',
    'Морин хуур, хөөмий, синтезатор.', 38000, '2024-04-20'),
@@ -24,13 +24,9 @@ insert into public.products (id, artist_id, category_id, type, title, descriptio
    'Эмальтай металл pin, 3 см.', 12000, null);
 
 insert into public.product_variants (product_id, format, size, color, sku, price_override, stock) values
-  ('b0000000-0000-0000-0000-000000000001', 'cd',      null, null, 'TSN-SD-CD',  null,  20),
-  ('b0000000-0000-0000-0000-000000000001', 'vinyl',   null, null, 'TSN-SD-LP',  89000, 5),
-  ('b0000000-0000-0000-0000-000000000001', 'digital', null, null, 'TSN-SD-DIG', 20000, null),
-  ('b0000000-0000-0000-0000-000000000002', 'cd',      null, null, 'NUD-TS-CD',  null,  15),
-  ('b0000000-0000-0000-0000-000000000002', 'digital', null, null, 'NUD-TS-DIG', 18000, null),
-  ('b0000000-0000-0000-0000-000000000003', 'cd',      null, null, 'MRS-GH-CD',  null,  2),
-  ('b0000000-0000-0000-0000-000000000003', 'digital', null, null, 'MRS-GH-DIG', 15000, null),
+  ('b0000000-0000-0000-0000-000000000001', 'vinyl', null, null, 'TSN-SD-LP', null, 5),
+  ('b0000000-0000-0000-0000-000000000002', 'vinyl', null, null, 'NUD-TS-LP', null, 15),
+  ('b0000000-0000-0000-0000-000000000003', 'vinyl', null, null, 'MRS-GH-LP', null, 2),
   ('b0000000-0000-0000-0000-000000000004', null, 'S',  'Хар', 'TSN-TEE-S',  null, 8),
   ('b0000000-0000-0000-0000-000000000004', null, 'M',  'Хар', 'TSN-TEE-M',  null, 12),
   ('b0000000-0000-0000-0000-000000000004', null, 'L',  'Хар', 'TSN-TEE-L',  null, 0),

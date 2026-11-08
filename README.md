@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Хөвөө — Цомог ба мерчийн онлайн дэлгүүр
 
-## Getting Started
+**khuvuu.mn** · SWE334 Internet Programming · бие даалтын төсөл
 
-First, run the development server:
+Монгол уран бүтээлчдийн CD, винил, дижитал цомог болон албан ёсны мерч (подволк, малгай, pin)-ийг нэг дороос худалдан авах full-stack веб аппликейшн.
+
+## Асуудал
+
+Монгол уран бүтээлчдийн физик болон дижитал цомгийг онлайнаар хайж, нэг дороос захиалах тусгай газар бараг байхгүй. Мерч нь ихэвчлэн зөвхөн тоглолтын үеэр эсвэл сошиал хуудсаар зарагддаг. Хөвөө нь цомог, мерчийг уран бүтээлчээр нь нэгтгэж, нөөц, захиалга, төлбөрийг нэг системд удирдана.
+
+## Хэрэглэгчийн төрөл
+
+| Төрөл | Боломж |
+|---|---|
+| Зочин | Бүтээгдэхүүн, уран бүтээлч үзэх, хайх, шүүх, дууны preview сонсох |
+| Хэрэглэгч | Сагс, захиалга, захиалгын түүх, профайл |
+| Админ | Бүтээгдэхүүн, уран бүтээлч, захиалга, хэрэглэгч удирдах, статистик |
+
+## Технологи
+
+- **Frontend:** React 19, Vite, React Router, Tailwind CSS v4
+- **Backend:** Supabase (Auth, PostgreSQL, Storage, RLS, RPC функц)
+- **Төлбөр:** QPay (Хамгаалалт-2)
+- **Байршуулалт:** Vercel + khuvuu.mn
+
+## Өгөгдлийн сан
+
+13 хүснэгт: `profiles`, `artists`, `categories`, `genres`, `products`, `product_variants`, `product_images`, `product_genres`, `tracks`, `cart_items`, `orders`, `order_items`, `payments`.
+
+- 1:N — `artists → products`, `products → product_variants`, `products → tracks`, `orders → order_items`
+- N:M — `products ↔ genres` (`product_genres`), `orders ↔ product_variants` (`order_items`)
+- Бүх хүснэгтэд RLS идэвхтэй. Захиалгыг зөвхөн `create_order_from_cart()` функцээр үүсгэдэг тул үнийг database тооцоолно.
+
+## Суулгах заавар
+
+### 1. Supabase
+
+1. [supabase.com](https://supabase.com) дээр шинэ төсөл үүсгэнэ.
+2. **SQL Editor** → `supabase/schema.sql`-г бүхэлд нь ажиллуулна (хүснэгт, RLS, функц, Storage bucket үүснэ).
+3. Туршилтын өгөгдөл хэрэгтэй бол `supabase/seed.sql`-г ажиллуулна.
+4. **Authentication → URL Configuration:**
+   - Site URL: `http://localhost:5173`
+   - Redirect URLs: `http://localhost:5173/**`
+
+### 2. Төсөл
+
+```bash
+git clone <repo-url>
+cd khuvuu
+npm install
+cp .env.example .env
+```
+
+`.env` файлд Supabase → **Project Settings → API**-аас утгуудаа хуулна:
+
+```
+VITE_SUPABASE_URL=https://xxxx.supabase.co
+VITE_SUPABASE_ANON_KEY=anon (эсвэл publishable) түлхүүр
+```
+
+> `service_role` түлхүүрийг frontend эсвэл `.env`-д хэзээ ч бүү хийнэ.
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Админ эрх
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Сайтад бүртгүүлсний дараа SQL Editor дээр:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```sql
+update public.profiles set role = 'admin'
+where id = (select id from auth.users where email = 'tanii@email.com');
+```
 
-## Learn More
+## Хавтасны бүтэц
 
-To learn more about Next.js, take a look at the following resources:
+```
+src/
+  components/
+    admin/       ImageUpload (урьдчилан харах, хэмжээ/төрлийн шалгалт)
+    layout/      Navbar, Footer, Layout, AdminLayout
+    product/     ProductCard, ProductGrid, TrackList
+    routes/      ProtectedRoute (нэвтрэлт, админ эрх шалгах)
+    ui/          Modal, ConfirmDialog, Pagination, Field, States...
+  context/       AuthContext, CartContext
+  hooks/         useDebounce
+  lib/           supabase client, format, storage
+  pages/         хэрэглэгчийн хуудсууд
+    auth/        Login, Register, ForgotPassword, ResetPassword
+    admin/       Dashboard, Products, ProductForm, Artists, Orders, Users
+supabase/
+  schema.sql     хүснэгт, RLS, функц, storage
+  seed.sql       туршилтын өгөгдөл
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Хуудсууд
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Зам | Тайлбар | Эрх |
+|---|---|---|
+| `/` | Нүүр | Бүгд |
+| `/shop` | Хайлт, шүүлт (төрөл, ангилал, хөгжмийн төрөл, үнэ), эрэмбэ, хуудаслалт | Бүгд |
+| `/products/:id` | Дэлгэрэнгүй, сонголт, дуу | Бүгд |
+| `/artists`, `/artists/:id` | Уран бүтээлчид | Бүгд |
+| `/cart`, `/checkout` | Сагс, захиалга | Хэрэглэгч |
+| `/orders`, `/orders/:id` | Захиалгын түүх | Хэрэглэгч |
+| `/profile` | Профайл | Хэрэглэгч |
+| `/admin/*` | Админ самбар | Админ |

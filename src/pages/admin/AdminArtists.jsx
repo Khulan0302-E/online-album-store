@@ -120,7 +120,7 @@ export default function AdminArtists() {
               <button type="button" onClick={() => openForm(artist)} className="p-2 text-muted hover:text-cream" aria-label="Засах">
                 <FiEdit2 />
               </button>
-              <button type="button" onClick={() => setDeleting(artist)} className="p-2 text-muted hover:text-red-400" aria-label="Устгах">
+              <button type="button" onClick={() => setDeleting(artist)} className="p-2 text-muted hover:text-red-600" aria-label="Устгах">
                 <FiTrash2 />
               </button>
             </div>

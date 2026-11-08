@@ -9,7 +9,7 @@ import Modal from '../../components/ui/Modal'
 import Spinner, { PageSpinner } from '../../components/ui/Spinner'
 import { EmptyState, ErrorState } from '../../components/ui/States'
 
-const TYPE_LABELS = { album: 'Цомог', merch: 'Мерч' }
+const TYPE_LABELS = { album: 'Пянз', merch: 'Мерч' }
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([])
@@ -121,7 +121,7 @@ export default function AdminCategories() {
                       <button type="button" onClick={() => openForm(c)} className="p-2 text-muted hover:text-cream" aria-label="Засах">
                         <FiEdit2 />
                       </button>
-                      <button type="button" onClick={() => setDeleting(c)} className="p-2 text-muted hover:text-red-400" aria-label="Устгах">
+                      <button type="button" onClick={() => setDeleting(c)} className="p-2 text-muted hover:text-red-600" aria-label="Устгах">
                         <FiTrash2 />
                       </button>
                     </li>

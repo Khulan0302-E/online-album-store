@@ -107,7 +107,7 @@ export default function AdminProducts() {
         </div>
         <select className="input sm:w-44" value={type} onChange={(e) => setType(e.target.value)}>
           <option value="">Бүх төрөл</option>
-          <option value="album">Цомог</option>
+          <option value="album">Пянз</option>
           <option value="merch">Мерч</option>
         </select>
       </div>
@@ -154,7 +154,7 @@ export default function AdminProducts() {
                       <button
                         type="button"
                         onClick={() => toggleActive(p)}
-                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${p.is_active ? 'bg-emerald-500/15 text-emerald-300' : 'bg-line text-muted'}`}
+                        className={`rounded-full px-2.5 py-1 text-xs font-semibold ${p.is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-line text-muted'}`}
                       >
                         {p.is_active ? 'Идэвхтэй' : 'Нуусан'}
                       </button>
@@ -164,7 +164,7 @@ export default function AdminProducts() {
                         <Link to={`/admin/products/${p.id}`} className="p-2 text-muted hover:text-cream" aria-label="Засах">
                           <FiEdit2 />
                         </Link>
-                        <button type="button" onClick={() => setDeleting(p)} className="p-2 text-muted hover:text-red-400" aria-label="Устгах">
+                        <button type="button" onClick={() => setDeleting(p)} className="p-2 text-muted hover:text-red-600" aria-label="Устгах">
                           <FiTrash2 />
                         </button>
                       </div>

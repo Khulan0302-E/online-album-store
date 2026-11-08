@@ -145,7 +145,7 @@ export default function AdminOrders() {
                             </button>
                           )}
                           {['pending', 'paid'].includes(order.status) && (
-                            <button type="button" className="btn btn-sm whitespace-nowrap text-red-300 hover:text-red-200" onClick={() => setCancelling(order)}>
+                            <button type="button" className="btn btn-sm whitespace-nowrap text-red-600 hover:text-red-700" onClick={() => setCancelling(order)}>
                               Цуцлах
                             </button>
                           )}

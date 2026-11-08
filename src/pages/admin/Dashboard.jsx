@@ -91,7 +91,7 @@ export default function Dashboard() {
 
       <section className="card mt-6 overflow-x-auto">
         <div className="flex items-center gap-2 px-6 pt-6">
-          <FiAlertTriangle className="text-amber-300" />
+          <FiAlertTriangle className="text-amber-700" />
           <h2 className="font-bold">Нөөц багассан</h2>
         </div>
         {stats.low_stock?.length ? (
@@ -108,7 +108,7 @@ export default function Dashboard() {
                 <tr key={i}>
                   <td>{row.title}</td>
                   <td className="text-muted">{row.variant || 'Стандарт'}</td>
-                  <td className={`text-right font-semibold ${row.stock === 0 ? 'text-red-400' : 'text-amber-300'}`}>{row.stock}</td>
+                  <td className={`text-right font-semibold ${row.stock === 0 ? 'text-red-600' : 'text-amber-700'}`}>{row.stock}</td>
                 </tr>
               ))}
             </tbody>

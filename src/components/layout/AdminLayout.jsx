@@ -13,7 +13,7 @@ const LINKS = [
 
 function linkClass({ isActive }) {
   return `flex items-center gap-3 whitespace-nowrap rounded-xl px-3.5 py-2.5 text-sm font-medium transition ${
-    isActive ? 'bg-brand/25 text-cream' : 'text-muted hover:bg-elevated hover:text-cream'
+    isActive ? 'bg-brand/10 text-brand' : 'text-muted hover:bg-elevated hover:text-cream'
   }`
 }
 
